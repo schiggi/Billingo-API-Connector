@@ -3,6 +3,7 @@
  * Copyright (c) 2015, VOOV LLC.
  * All rights reserved.
  * Written by Daniel Fekete
+ * Modified by Alex Schikalow - included logging of requests
  */
 
 namespace Billingo\API\Connector\HTTP;
@@ -32,11 +33,17 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 	{
 		
 		$this->config = $this->resolveOptions($options);
-		$this->client = new Client([
-				'verify' => false,
-				'base_uri' => $this->config['host'],
-				'debug' => false
-		]);
+
+        $config_array = [
+            'verify' => false,
+            'base_uri' => $this->config['host'],
+            'debug' => false
+        ];
+        if (!empty($this->config['log_dir'])) {
+            $config_array['handler'] = $this->createLoggingHandlerStack($this->config['log_msg_format']);
+        }
+
+        $this->client = new Client($config_array);
 	}
 
 	/**
@@ -50,6 +57,8 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 		$resolver->setDefault('version', '2');
 		$resolver->setDefault('host', 'https://www.billingo.hu/api/'); // might be overridden in the future
 		$resolver->setDefault('leeway', 60);
+        $resolver->setDefault('log_dir', '');
+        $resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
 		$resolver->setRequired(['host', 'private_key', 'public_key', 'version', 'leeway']);
 		return $resolver->resolve($opts);
 	}
@@ -164,4 +173,40 @@ class Request implements \Billingo\API\Connector\Contracts\Request
         $response = $this->client->request('GET', $uri, $options);
         return $response instanceof ResponseInterface ? $response->getBody() : null;
 	}
+
+    /**
+     *	Logger functionality: Creates a log file for each day with all requests and responses
+     */
+    private function getLogger()
+    {
+        if (! $this->logger) {
+            $this->logger = with(new \Monolog\Logger('api-consumer'))->pushHandler(
+                new \Monolog\Handler\RotatingFileHandler( $this->config['log_dir'] . 'api-billingo-consumer.log')
+            );
+        }
+
+        return $this->logger;
+    }
+
+    private function createGuzzleLoggingMiddleware(string $messageFormat)
+    {
+        return \GuzzleHttp\Middleware::log(
+            $this->getLogger(),
+            new \GuzzleHttp\MessageFormatter($messageFormat)
+        );
+    }
+
+    private function createLoggingHandlerStack(array $messageFormats)
+    {
+        $stack = \GuzzleHttp\HandlerStack::create();
+
+        collect($messageFormats)->each(function ($messageFormat) use ($stack) {
+            // We'll use unshift instead of push, to add the middleware to the bottom of the stack, not the top
+            $stack->unshift(
+                $this->createGuzzleLoggingMiddleware($messageFormat)
+            );
+        });
+
+        return $stack;
+    }
 }

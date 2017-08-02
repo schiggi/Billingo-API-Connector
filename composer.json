@@ -7,12 +7,20 @@
     {
       "name": "Daniel Fekete",
       "email": "daniel.fekete@voov.hu"
+    },
+    {
+      "name"    : "schiggi",
+      "email": "alex@schikalow.de",
+      "homepage": "http://schikalow.de/"
     }
   ],
   "require": {
+    "php": ">=7.0.0",
     "guzzlehttp/guzzle": "^6.0",
     "firebase/php-jwt": "^3.0",
-    "symfony/options-resolver": "^3.0"
+    "symfony/options-resolver": "^3.0",
+    "tightenco/collect":"^5.4",
+    "monolog/monolog":"^1.23"
   },
   "autoload": {
     "psr-4": {

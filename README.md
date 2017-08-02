@@ -77,6 +77,27 @@ The `Request` class takes care of the communication between your app and the Bil
 
 To adjust for some time skew between the client and the API server, you can set the `leeway` parameter when creating the new instance. The leeway is measured in seconds and the default value is 60. This modifies the `nbf`, `iat` and `exp` claims of the JWT, so in the case of the default leeway, the token is valid one minute before and after the issue time.
 
+#### Using Monolog to log requests and responses to a log file
+
+Monolog is used optionally to log request/responses with Billingo server.
+
+You need to specific a log dir and optionally a message format when creating a new `request` instance. Log files while have the name "api-billingo-consumer-{date}.log" 
+
+```php
+<?php
+  use Billingo\API\Connector\HTTP\Request;
+
+  $billingo = new Request([
+	  'public_key' => 'YOUR_PUBLIC_KEY',
+	  'private_key' => 'YOUR_PRIVATE_KEY',
+      'log_dir' => 'YOUR LOG directory',
+      'log_msg_format' => [
+          '{method} {uri} HTTP/{version} {req_body}',
+          'RESPONSE: {code} - {res_body}',
+      ]
+  ]);
+```
+
 ## General usage
 
 ### Get resource
@@ -108,7 +129,7 @@ $clientData = [
       "postcode" => "PR1",
       "country" => "United Kingdom"
   ]
-]
+];
 $billingo->post('clients', $clientData);
 
 ```
@@ -138,6 +159,18 @@ When passing the second parameter, you can specify a filename or a resource open
 ```php
 <?php
   $billingo->downloadInvoice('123456789', 'filename.pdf');
+```
+
+#### Using the stream interface
+
+```php
+<?php
+  $invoice = $billingo->downloadInvoice('123456789');
+  if($invoice->isReadable()) {
+      while(!$invoice->eof()) {
+          echo $invoice->read(1);
+      }    
+  }
 ```
 
 #### Using the stream interface
