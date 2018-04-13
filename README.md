@@ -173,15 +173,3 @@ When passing the second parameter, you can specify a filename or a resource open
   }
 ```
 
-#### Using the stream interface
-
-```php
-<?php
-  $invoice = $billingo->downloadInvoice('123456789');
-  if($invoice->isReadable()) {
-      while(!$invoice->eof()) {
-          echo $invoice->read(1);
-      }    
-  }
-```
-

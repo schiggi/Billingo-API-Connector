@@ -3,7 +3,6 @@
  * Copyright (c) 2015, VOOV LLC.
  * All rights reserved.
  * Written by Daniel Fekete
- * Modified by Alex Schikalow - included logging of requests
  */
 
 namespace Billingo\API\Connector\HTTP;
@@ -91,26 +90,36 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 	 * @throws JSONParseException
 	 * @throws RequestErrorException
 	 */
-	public function request($method, $uri, $data=[])
-	{
+    public function request($method, $uri, $data=[])
+    {
+        // get the key to use for the query
+        if ($method == strtoupper('GET') || $method == strtoupper('DELETE')) {
+            $queryKey = 'query';
+        } else {
+            $queryKey = 'json';
+        }
 
-		// get the key to use for the query
-		if($method == strtoupper('GET') || $method == strtoupper('DELETE')) $queryKey = 'query';
-		else $queryKey = 'json';
+        // make signature
+        $response = $this->client->request($method, $uri, [$queryKey => $data, 'headers' => [
+            'Authorization' => 'Bearer ' . $this->generateAuthHeader()
+        ]]);
 
-		// make signature
-		$response = $this->client->request($method, $uri, [$queryKey => $data, 'headers' =>[
-				'Authorization' => 'Bearer ' . $this->generateAuthHeader()
-		]]);
+        $jsonData = json_decode($response->getBody(), true);
 
+        if ($jsonData == null) {
+            throw new JSONParseException('Cannot decode: ' . $response->getBody());
+        }
 
-		$jsonData = json_decode($response->getBody(), true);
-		if($jsonData == null) throw new JSONParseException('Cannot decode: ' . $response->getBody());
-		if($response->getStatusCode() != 200 || $jsonData['success'] == 0)
-			throw new RequestErrorException('Error: ' . $jsonData['error'], $response->getStatusCode());
+        if ($response->getStatusCode() != 200 || $jsonData['success'] == 0) {
+            throw new RequestErrorException('Error: ' . $jsonData['error'], $response->getStatusCode());
+        }
 
-		return $jsonData['data'];
-	}
+        if (array_key_exists('data', $jsonData)) {
+            return $jsonData['data'];
+        }
+
+        return [];
+    }
 
 	/**
 	 * GET

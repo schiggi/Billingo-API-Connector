@@ -8,11 +8,6 @@
       "name": "Daniel Fekete",
       "email": "daniel.fekete@voov.hu"
     },
-    {
-      "name"    : "schiggi",
-      "email": "alex@schikalow.de",
-      "homepage": "http://schikalow.de/"
-    }
   ],
   "require": {
     "php": ">=7.0.0",
