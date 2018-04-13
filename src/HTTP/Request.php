@@ -183,7 +183,7 @@ class Request implements \Billingo\API\Connector\Contracts\Request
      */
     private function getLogger()
     {
-        if (! $this->logger) {
+        if (empty($this->logger)) {
             $this->logger = with(new \Monolog\Logger('api-consumer'))->pushHandler(
                 new \Monolog\Handler\RotatingFileHandler( $this->config['log_dir'] . 'api-billingo-consumer.log')
             );
