@@ -30,19 +30,14 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 	 */
 	public function __construct($options)
 	{
-		
 		$this->config = $this->resolveOptions($options);
 
-        $config_array = [
+        $this->client = new Client([
             'verify' => false,
             'base_uri' => $this->config['host'],
-            'debug' => false
-        ];
-        if (!empty($this->config['log_dir'])) {
-            $config_array['handler'] = $this->createLoggingHandlerStack($this->config['log_msg_format']);
-        }
-
-        $this->client = new Client($config_array);
+            'debug' => false,
+            'handler' => !empty($this->config['log_dir']) ? $this->createLoggingHandlerStack($this->config['log_msg_format']) : false
+        ]);
 	}
 
 	/**
