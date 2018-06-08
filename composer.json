@@ -7,7 +7,7 @@
     {
       "name": "Daniel Fekete",
       "email": "daniel.fekete@voov.hu"
-    },
+    }
   ],
   "require": {
     "php": ">=7.0.0",
