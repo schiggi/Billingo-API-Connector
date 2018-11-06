@@ -51,8 +51,9 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 		$resolver->setDefault('version', '2');
 		$resolver->setDefault('host', 'https://www.billingo.hu/api/'); // might be overridden in the future
 		$resolver->setDefault('leeway', 60);
-        $resolver->setDefault('log_dir', '');
-        $resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
+        	$resolver->setDefault('log_dir', '');
+		$resolver->setDefault('log_loggly_token', '');
+        	$resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
 		$resolver->setRequired(['host', 'private_key', 'public_key', 'version', 'leeway']);
 		return $resolver->resolve($opts);
 	}
@@ -184,9 +185,15 @@ class Request implements \Billingo\API\Connector\Contracts\Request
     private function getLogger()
     {
         if (empty($this->logger)) {
-            $this->logger = with(new \Monolog\Logger('api-consumer'))->pushHandler(
+            $this->logger = new \Monolog\Logger('api-billingo-consumer');
+            $this->logger->pushHandler(
                 new \Monolog\Handler\RotatingFileHandler( $this->config['log_dir'] . 'api-billingo-consumer.log')
             );
+            if (!empty($this->config['log_loggly_token'])) {
+                $this->logger->pushHandler(
+                    new \Monolog\Handler\LogglyHandler($this->config['log_loggly_token'],\Monolog\Logger::INFO)
+                );
+            }
         }
 
         return $this->logger;
