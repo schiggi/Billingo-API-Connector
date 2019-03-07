@@ -51,9 +51,10 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 		$resolver->setDefault('version', '2');
 		$resolver->setDefault('host', 'https://www.billingo.hu/api/'); // might be overridden in the future
 		$resolver->setDefault('leeway', 60);
-        	$resolver->setDefault('log_dir', '');
+		$resolver->setDefault('log_syslog', false);
+		$resolver->setDefault('log_dir', '');
 		$resolver->setDefault('log_loggly_token', '');
-        	$resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
+		$resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
 		$resolver->setRequired(['host', 'private_key', 'public_key', 'version', 'leeway']);
 		return $resolver->resolve($opts);
 	}
@@ -194,6 +195,11 @@ class Request implements \Billingo\API\Connector\Contracts\Request
                     new \Monolog\Handler\LogglyHandler($this->config['log_loggly_token'],\Monolog\Logger::INFO)
                 );
             }
+			if (!empty($this->config['log_syslog'])) {
+				$this->logger->pushHandler(
+					new \Monolog\Handler\SyslogHandler('api-billingo-consumer')
+				);
+			}
         }
 
         return $this->logger;
