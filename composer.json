@@ -15,7 +15,8 @@
     "firebase/php-jwt": "^3.0",
     "symfony/options-resolver": "^3.0",
     "tightenco/collect":"^5.4",
-    "monolog/monolog":"^1.23"
+    "monolog/monolog":"^1.23",
+    "nvanheuverzwijn/monolog-logdna": "dev-master"
   },
   "autoload": {
     "psr-4": {
