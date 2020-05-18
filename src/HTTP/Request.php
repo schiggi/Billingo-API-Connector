@@ -52,7 +52,7 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 		$resolver->setDefault('host', 'https://www.billingo.hu/api/'); // might be overridden in the future
 		$resolver->setDefault('leeway', 60);
 		$resolver->setDefault('log_syslog', false);
-        $resolver->setDefault('log_logdna_key', false);
+		$resolver->setDefault('log_logdna_key', false);
 		$resolver->setDefault('log_dir', '');
 		$resolver->setDefault('log_loggly_token', '');
 		$resolver->setDefault('log_msg_format', ['{method} {uri} HTTP/{version} {req_body}','RESPONSE: {code} - {res_body}',]);
