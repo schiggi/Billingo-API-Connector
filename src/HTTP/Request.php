@@ -201,11 +201,11 @@ class Request implements \Billingo\API\Connector\Contracts\Request
 					new \Monolog\Handler\SyslogHandler('api-billingo-consumer')
 				);
 			}
-            if (!empty($this->config['log_logdna_key'])) {
-                $this->logger->pushHandler(
-                    new \Zwijn\Monolog\Handler\LogdnaHandler($this->config['log_logdna_key'], 'api-billingo-consumer')
-                );
-            }
+			if (!empty($this->config['log_logdna_key'])) {
+				$this->logger->pushHandler(
+					new \Zwijn\Monolog\Handler\LogdnaHandler($this->config['log_logdna_key'], 'api-billingo-consumer')
+				);
+			}
         }
 
         return $this->logger;
