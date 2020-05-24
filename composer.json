@@ -16,7 +16,7 @@
     "symfony/options-resolver": "^3.0",
     "tightenco/collect":"^5.4",
     "monolog/monolog":"^1.23",
-    "butopea/monolog-logdna": "dev-master"
+    "butopea/monolog-logdna": "^2.1"
   },
   "autoload": {
     "psr-4": {
